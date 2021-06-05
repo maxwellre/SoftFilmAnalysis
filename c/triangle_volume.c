@@ -1,10 +1,16 @@
+/*
+"Program to compute the volume of a triangle pouch"
+"Unit: mm"
+"Author: Yitian Shao"
+"Created on 2021.06.04"
+*/
 #include <math.h>
 #include <stdio.h>
 #include <omp.h>
 
 double compute(double x0, double x1, double y0, double z0, double R, double m, double c, double stepSize)
 {
-	double a = 0.0, b = 0.0, R2 = 0.0, V = 0.0, Vi = 0.0; // y = ax + b, R2 = R square, V is the volume computed, Vi is used for parallel computing
+	double a = 0.0, b = 0.0, R2 = 0.0, V = 0.0, Vi = 0.0; // y = ax + b, R2 = R square, V is the volume computed (half-triangle), Vi is used for parallel computing
 	
 	a = m/c;
 	b = a * -x0;
@@ -39,5 +45,5 @@ double compute(double x0, double x1, double y0, double z0, double R, double m, d
 			V += Vi;
         }
 	}
-	return V;
+	return (2*V); // Note that only half of the volume is computed by the for loop since the triangle pouch is symmetric about x-axis
 }
