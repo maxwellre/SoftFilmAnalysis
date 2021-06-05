@@ -12,7 +12,9 @@ triangle_volume.compute.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_d
 triangle_volume.compute.restype = ctypes.c_double
 
 time0 = time.time()
-V = triangle_volume.compute(26.296411310760284, 21.843588689239716, 50, 42.52644767877184, 25.158589393088, 1e-06)
+#V = triangle_volume.compute(26.296411310760284, 21.843588689239716, 50, 42.52644767877184, 25.158589393088, 1e-06)
+
+V = triangle_volume.compute(50.0, 0.0, 50, 0.0, 35.35533905932738, 0.0001)
 
 print("Volume of the triangle pouch V = %.3f mm3 (Computed in %.10f sec)" % (V, time.time()-time0))    
 

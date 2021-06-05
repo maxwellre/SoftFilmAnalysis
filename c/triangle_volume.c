@@ -15,7 +15,8 @@
 /* Triangle pouch is formed by cutting front, and symmetrically two sides, then top of a sphere */
 /* 's' is the radius of top cutting circle, 'f' is the distance between the center of front cutting circle to the center of the sphere */
 /* 'R' is the radius of the sphere being cutted, 'h' is the distance between the center of top cutting circle to the center of the sphere */
-/* 'n' is half length of the , 'stepSize' controls the resolution of the integral */
+/* 'n' is half length of the triangle side, 'stepSize' controls the resolution of the integral */
+/* Note: All input arguments must be nonnegative and 'stepSize' must be positive */
 
 /* Compute the volume of a corner of a sphere cutted by two perpendicular planes */
 double sphereCorner(double s2, double f, double R2, double stepSize)
@@ -28,12 +29,12 @@ double sphereCorner(double s2, double f, double R2, double stepSize)
 	//Assign maximum number of threads for parallel computing
 	int threadNum = omp_get_max_threads();
 	omp_set_num_threads(threadNum); 
-	printf("Start parallel computing: Assigned number of threads = %d\n", threadNum);
+	printf("Parallel computing: Assigned number of threads = %d\n", threadNum);
 	
 	#pragma omp parallel shared(cornerV) private(Vi)
 	{		
 		#pragma omp for
-		for(int i = 0; i < iMax; i++) //for(double x = f2; x < s2; x += stepSize)
+		for(int i = 1; i < iMax; i++) //for(double x = f2; x < s2; x += stepSize)
 		{
 			double x = (double)i * stepSize + f2;
 			Vi -= stepSize * (f * sqrt(x - f2) - x * acos(f/sqrt(x))) / (2 * sqrt(R2 - x));	
@@ -59,6 +60,8 @@ double compute(double s, double f, double R, double h, double n, double stepSize
 	double SideCornerV = sphereCorner(s2, sqrt(s2 - n*n), R2, stepSize);
 	
 	double upperSphereV = ( 2 * R2 * (R - h) + h * (h2 - R2) ) * M_PI/3;
+	
+	printf("Front = %.3f mm3, Side = %.3f mm3\n", frontCornerV, SideCornerV);
 		
 	return (upperSphereV - frontCornerV - 2*SideCornerV);
 }
