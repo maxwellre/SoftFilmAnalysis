@@ -8,6 +8,64 @@
 #include <stdio.h>
 #include <omp.h>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+/* Triangle pouch is formed by cutting front, and symmetrically two sides, then top of a sphere */
+/* 's' is the radius of top cutting circle, 'f' is the distance between the center of front cutting circle to the center of the sphere */
+/* 'R' is the radius of the sphere being cutted, 'h' is the distance between the center of top cutting circle to the center of the sphere */
+/* 'n' is half length of the , 'stepSize' controls the resolution of the integral */
+
+/* Compute the volume of a corner of a sphere cutted by two perpendicular planes */
+double sphereCorner(double s2, double f, double R2, double stepSize)
+{
+	double cornerV = 0.0, Vi = 0.0;
+	double f2 = f*f;
+	
+	int iMax = (int)((s2 - f2)/stepSize); // Need integer index for parallel computing 
+	
+	//Assign maximum number of threads for parallel computing
+	int threadNum = omp_get_max_threads();
+	omp_set_num_threads(threadNum); 
+	printf("Start parallel computing: Assigned number of threads = %d\n", threadNum);
+	
+	#pragma omp parallel shared(cornerV) private(Vi)
+	{		
+		#pragma omp for
+		for(int i = 0; i < iMax; i++) //for(double x = f2; x < s2; x += stepSize)
+		{
+			double x = (double)i * stepSize + f2;
+			Vi -= stepSize * (f * sqrt(x - f2) - x * acos(f/sqrt(x))) / (2 * sqrt(R2 - x));	
+		}
+		
+		#pragma omp critical
+        {
+			cornerV += Vi;
+        }
+	}
+	return cornerV;
+}
+
+/* Compute the volume of the triangle pouch through boolean substration method */
+double compute(double s, double f, double R, double h, double n, double stepSize)
+{
+	double s2 = s*s;
+	double R2 = R*R;
+	double h2 = h*h;
+	
+	double frontCornerV = sphereCorner(s2, f, R2, stepSize);
+	
+	double SideCornerV = sphereCorner(s2, sqrt(s2 - n*n), R2, stepSize);
+	
+	double upperSphereV = ( 2 * R2 * (R - h) + h * (h2 - R2) ) * M_PI/3;
+		
+	return (upperSphereV - frontCornerV - 2*SideCornerV);
+}
+
+
+
+/****************** [Obsoleted] Slower double integral method
 double compute(double x0, double x1, double y0, double z0, double R, double m, double c, double stepSize)
 {
 	double a = 0.0, b = 0.0, R2 = 0.0, V = 0.0, Vi = 0.0; // y = ax + b, R2 = R square, V is the volume computed (half-triangle), Vi is used for parallel computing
@@ -18,7 +76,7 @@ double compute(double x0, double x1, double y0, double z0, double R, double m, d
 	
 	int iMax = (int)((x1 - x0)/stepSize); // Need integer index for parallel computing 
 	
-	/* Assign maximum number of threads for parallel computing */
+	//Assign maximum number of threads for parallel computing
 	int threadNum = omp_get_max_threads();
 	omp_set_num_threads(threadNum); 
 	printf("Start parallel computing: Assigned number of threads = %d\n", threadNum);
@@ -47,3 +105,4 @@ double compute(double x0, double x1, double y0, double z0, double R, double m, d
 	}
 	return (2*V); // Note that only half of the volume is computed by the for loop since the triangle pouch is symmetric about x-axis
 }
+******************/
