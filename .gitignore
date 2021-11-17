@@ -6,7 +6,6 @@ TestSensor/
 *.xls
 *.png
 *.idea
-*.txt
 *.avi
 *.tdms
 *.tdms_index
@@ -16,6 +15,9 @@ TestSensor/
 *.gif
 *.cmake
 temp
+
+*.txt
+!CMakeLists.txt
 
 CMakeFiles/
 include/
