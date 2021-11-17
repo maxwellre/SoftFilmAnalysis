@@ -3,7 +3,7 @@
  * <RELEASE-SPECIFIC-EULA>
  */
 
-#include "ExampleConnection.h"
+#include "libExampleConnection.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -342,37 +342,6 @@ LEAP_TRACKING_EVENT* GetFrame(){
   return currentFrame;
 }
 
-void getOneFrame(){
-    LEAP_TRACKING_EVENT *frame = GetFrame();
-    if(frame && (frame->tracking_frame_id > lastFrameID)){
-      lastFrameID = frame->tracking_frame_id;
-      printf("Frame %lli with %i hands.\n", (long long int)frame->tracking_frame_id, frame->nHands);
-
-    LEAP_HAND* hand = &frame->pHands[(frame->nHands) - 1];
-
-    hand->palm.position.x
-    hand->palm.position.y
-    hand->palm.position.z
-
-//    hand->digits.thumb.position.x
-//    hand->digits.thumb.position.y
-//    hand->digits.thumb.position.z
-
-    hand->arm.position.x
-    hand->arm.position.y
-    hand->arm.position.z
-
-    }
-}
-
-//      for(uint32_t h = 0; h < frame->nHands; h++){
-//        LEAP_HAND* hand = &frame->pHands[h];
-//        printf("    Hand id %i is a %s hand with position (%f, %f, %f).\n",
-//                    hand->id,
-//                    (hand->type == eLeapHandType_Left ? "left" : "right"),
-//                    hand->palm.position.x,
-//                    hand->palm.position.y,
-//                    hand->palm.position.z);}
 /**
  * Caches the last device found by copying the device info struct returned by
  * LeapC.
@@ -436,3 +405,32 @@ void millisleep(int milliseconds){
 #endif
   }
 //End-of-ExampleConnection.c
+
+/* Added funciton for interfacing python*/
+
+int getOneFrame(float* trackdata){
+    LEAP_TRACKING_EVENT *frame = GetFrame();
+    if(frame && (frame->tracking_frame_id > lastFrameID)){
+        lastFrameID = frame->tracking_frame_id;
+        uint32_t handNum = frame->nHands;
+
+        if(handNum == 1u) {
+
+            LEAP_HAND* hand = &frame->pHands[(frame->nHands) - 1]; // Get the first identified hand
+
+            for(int i = 0; i < 3; i++) {
+                trackdata[i] = hand->palm.position.v[i];
+            }
+
+            //printf("Frame %lli with %i hands. at [%f, %f, %f]\n", (long long int) lastFrameID, handNum, trackdata[0], trackdata[1], trackdata[2]);
+
+            //hand->index.stabilized_position.v;
+
+            //hand->arm.stabilized_position.v;
+
+            return 1;
+        }
+    }
+
+    return 0; // No tracking data
+}

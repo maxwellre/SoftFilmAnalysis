@@ -1,4 +1,5 @@
 import ctypes
+import numpy as np
 from ctypes import util
 from ctypes import CDLL
 from os import path
@@ -12,9 +13,8 @@ leapc = ctypes.CDLL(libPath)
 libPath = ctypes.util.find_library(path.join(sdkPath, 'libExampleConnection'))
 leapc_lib = ctypes.CDLL(libPath)
 
-class LEAP_TRACKING_EVENT(ctypes.Structure):
-    _fields_ = [("info", ctypes.c_void_p),("tracking_frame_id", ctypes.c_int64),
-                ("nHands", ctypes.c_uint32),("pHands", ctypes.c_void_p),("framerate", ctypes.c_float)]
+leapc_lib.getOneFrame.argtypes = [ctypes.POINTER(ctypes.c_float)]
+leapc_lib.getOneFrame.restype = ctypes.c_int
 
 '''------------------------------------------------------------------------------------------------------------------'''
 
@@ -26,7 +26,21 @@ if __name__ == '__main__':
 
     print("Leap Motion Connected")
 
-    oneFrame = LEAP_TRACKING_EVENT()
+    # oneFrame = LEAP_TRACKING_EVENT()
 
     while True:
-        leapc_lib.getOneFrame()
+        data1f = np.zeros((9,), dtype=np.float32)
+
+        trackres = leapc_lib.getOneFrame(data1f.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
+
+        if(trackres == 1):
+            print(data1f)
+
+        leapc_lib.millisleep(100)
+
+
+
+
+    # End
+    leapc_lib.DestroyConnection()
+
