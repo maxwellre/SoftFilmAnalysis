@@ -54,6 +54,6 @@ struct Callbacks{
 extern struct Callbacks ConnectionCallbacks;
 extern void millisleep(int milliseconds);
 
-int getOneFrame(float trackdata[9]); // Customized function for bridging with cpython
+int getOneFrame(float trackdata[33]); // Customized function for bridging with cpython
 
 #endif /* libExampleConnection_h */

@@ -419,14 +419,25 @@ int getOneFrame(float* trackdata){
             LEAP_HAND* hand = &frame->pHands[(frame->nHands) - 1]; // Get the first identified hand
 
             for(int i = 0; i < 3; i++) {
-                trackdata[i] = hand->palm.position.v[i];
+                trackdata[i] = hand->palm.position.v[i]; // Position of the palm
+
+                trackdata[3+i] = hand->thumb.distal.prev_joint.v[i]; // The base of the distal phalange of thumb, closer to the heart
+                trackdata[6+i] = hand->thumb.distal.next_joint.v[i]; // The end of ...
+
+                trackdata[9+i] = hand->index.distal.prev_joint.v[i]; // The base of the distal phalange of index, closer to the heart
+                trackdata[12+i] = hand->index.distal.next_joint.v[i]; // The end of ...
+
+                trackdata[15+i] = hand->middle.distal.prev_joint.v[i]; // The base of the distal phalange of middle, closer to the heart
+                trackdata[18+i] = hand->middle.distal.next_joint.v[i]; // The end of ...
+
+                trackdata[21+i] = hand->ring.distal.prev_joint.v[i]; // The base of the distal phalange of ring, closer to the heart
+                trackdata[24+i] = hand->ring.distal.next_joint.v[i]; // The end of ...
+
+                trackdata[27+i] = hand->pinky.distal.prev_joint.v[i]; // The base of the distal phalange of pinky, closer to the heart
+                trackdata[30+i] = hand->pinky.distal.next_joint.v[i]; // The end of ...
             }
 
             //printf("Frame %lli with %i hands. at [%f, %f, %f]\n", (long long int) lastFrameID, handNum, trackdata[0], trackdata[1], trackdata[2]);
-
-            //hand->index.stabilized_position.v;
-
-            //hand->arm.stabilized_position.v;
 
             return 1;
         }
